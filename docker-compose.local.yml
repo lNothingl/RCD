@@ -1,0 +1,24 @@
+name: "rsd-backend-assessment"
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - psql_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: backend_test_assesment
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7.2.0
+    volumes:
+      - redis_data:/var/lib/redis/data
+
+volumes:
+  psql_data:
+  redis_data:
+
+
+
