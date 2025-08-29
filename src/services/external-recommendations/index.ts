@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { IRecommendation } from '@src/types/response';
 import * as process from 'process';
 import * as console from 'console';
@@ -24,18 +24,23 @@ export class ExternalRecommendationsService {
       }
     }
     try {
-      const response = await axios.get(`${this.apiUrl}?user_id=${userId}`);
-      const recommendations = response.data;
-
+      const response : any  =  await axios.get(`${this.apiUrl}?user_id=${userId}`)
+        .then(response => {
+          return response;
+        })
+        .catch(error => {
+          throw new Error(`ExternalRecommendationsService returned status ${error.status}: ${error.statusText}`)
+        });
+      const externalRecommendations : IRecommendation[] = response.data;
       if(client.status == 'connecting') {
         try {
-          await client.setex(cacheKey, 86400, JSON.stringify(recommendations));
+          await client.setex(cacheKey, 86400, JSON.stringify(externalRecommendations));
         } catch (cacheError) {
           console.error('Failed to cache recommendations, continuing without cache');
         }
       }
 
-      return recommendations;
+      return externalRecommendations;
     } catch (error) {
       console.error('Error fetching external recommendations:', error);
       return [];
